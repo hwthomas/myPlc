@@ -23,10 +23,10 @@ class cableChecker():
             return False
 
     def runCheckStep1(self):
-        print("cableChecker runCheckStep1")
         if (self.pretendedMode):
             print("pretended cable check step 1")
         else:
+            print("cableChecker runCheckStep1")
             # select weak supply
             self.psu.selectDriverForCableCheck()
             # turn-on the HV

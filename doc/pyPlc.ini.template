@@ -44,6 +44,9 @@ light_bulb_demo = no
 # Possible values: yes or no
 soc_simulation = yes
 
+# Cable Check physically or just pretended
+evse_pretended_cable_check = yes
+
 # Precharge simulation
 # In EVSE mode simulate precharging rather than using physical value
 evse_simulate_precharge = yes
