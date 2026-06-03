@@ -117,7 +117,7 @@ class hardwareInterface():
 #
     def getPowerRelayConfirmation(self):
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
-            pass_none   # return self.contactor_confirmed
+            pass    # return self.contactor_confirmed
         return 1 # todo: self.contactor_confirmed
 
     def triggerConnectorLocking(self):
@@ -282,7 +282,6 @@ class hardwareInterface():
         self.simulatedSoc = 20.0    # percent
         self.demoAuthenticationCounter = 0
         self.enabled = True         #Charging enabled
-
         self.buttonDebounceCounter = 0
         self.buttonStopPhaseCounter = 0
 
@@ -302,8 +301,7 @@ class hardwareInterface():
         self.maxChargerCurrent = 10
         self.chargerVoltage = 0
         self.chargerCurrent = 0
-
-        self.infonumber = 0             # this block is new, and only for Charger project?
+        self.infonumber = 0                 # this block is new, and only for Charger project?
         self.focccicapeCycleCounter = 0
         self.evseModePowerSupplyTargetVoltage = 0
         self.evseModePowerSupplyTargetCurrent = 0
@@ -400,6 +398,11 @@ class hardwareInterface():
         # show the given string s on the display which is connected to the serial port
         # this is just a stub, as there is no serial display on the RPi4 test rig
 
+    def visualizeStatus(self, s, strSelection, strAux1, strAux2):
+        pass
+        # distribute the status info to the user
+        # this is just a stub, and no Status Visualisation at present on Rpi4b rig (HWT)
+
     def mainfunction(self):         # hardwareInterface.mainfunction()
         if (getConfigValueBool("soc_simulation")):
             if(self.simulatedSoc<100):
@@ -413,6 +416,11 @@ class hardwareInterface():
 
         if (getConfigValue("charge_parameter_backend")=="chademo"):
            self.mainfunction_chademo()
+
+        if (self.mode==C_EVSE_MODE):
+            self.cableChecker.mainfunction()
+            if (self.isPhysicalVoltageSimulated):
+                self.evseMode_physicalVoltageSimulationMainfunction()
 
         if getConfigValueBool("exit_on_session_end"):
             # TODO: This is a hack. Do this in fsmPev instead and publish some
@@ -485,7 +493,6 @@ if __name__ == "__main__":
         if (i==150):
             hw.setStateC()
             hw.setPowerRelayOn()
-            hw.showOnDisplay("", "..middle..", "")
         if (i==200):
             hw.setStateB()
             hw.setPowerRelayOff()
