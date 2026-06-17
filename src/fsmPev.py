@@ -848,8 +848,8 @@ class fsmPev():
         self.addToTrace("re-initializing fsmPev")
         self.Tcp.disconnect()
         self.hardwareInterface.setStateB()
-        self.hardwareInterface.setSS1_Off()
-        self.hardwareInterface.setSS2_Off()
+        self.hardwareInterface.setPowerRelayOff()
+        self.hardwareInterface.setRelay2Off()
         self.isBulbOn = False
         self.cyclesLightBulbDelay = 0
         self.state = stateConnecting
