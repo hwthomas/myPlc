@@ -1,3 +1,9 @@
+### Initial note ###  
+This project was originally forked from ``github.com/uhi22/pyPlc`` and its name changed to ``myPlc``
+Main structural change is to separate all python sources into a folder ``src`` with minor code changes to allow for this  
+  
+Then ``hardwareInterface.py`` edited to handle a CCS-CHAdeMO converter project based on RPi4b and Waveshare CAN HAT hardware  
+  
 # CCS hacking: Electric car charging experiments with Python and PLC network adaptors
 
 ## Goal
