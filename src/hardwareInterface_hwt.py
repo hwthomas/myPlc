@@ -113,7 +113,7 @@ class hardwareInterface():
             GPIO.output(pinSS2, GPIO.LOW)
         self.outvalue &= ~8
 #
-# Where is this relay confirmation required in CHAdeMO?
+# Where is this relay confirmation required in CHAdeMO?  - [fsmPev.py line 603]
 #
     def getPowerRelayConfirmation(self):
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
