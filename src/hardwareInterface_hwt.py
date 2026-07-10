@@ -12,15 +12,15 @@ from random import random
 from cableChecker import *
 from environment_info import getLogFileNumber
 
-import RPi.GPIO as GPIO   # Raspberry Pi GPIO library
-
-# RPI4b GPIO output definitions for interface board (https://github.com/hwthomas/ccs-chademo/wiki/)
-pinCp  = 40     # alter these for our interface boards
-pinSS1 = 29     # d1/SS1 Charge sequence signal 1
-pinSS2 = 13     # d2/SS2 Charge sequence signal 2
-pinWdg = 33     # pinWdg WatchDog charge pump (future)
-
 if (getConfigValue("digital_output_device") == "rpi_gpio"):
+    import RPi.GPIO as GPIO   # Raspberry Pi GPIO library
+
+    # RPI4b GPIO output definitions for interface board (https://github.com/hwthomas/ccs-chademo/wiki/)
+    pinCp  = 40     # alter these for our interface boards
+    pinSS1 = 29     # d1/SS1 Charge sequence signal 1
+    pinSS2 = 13     # d2/SS2 Charge sequence signal 2
+    pinWdg = 33     # pinWdg WatchDog charge pump (future)
+
     GPIO.setmode(GPIO.BOARD)                    # set GPIO for board (physical pin) numbering
     pins = [pinCp, pinSS1, pinSS2, pinWdg]
     for pin in pins:                            # process all the outputs defined above
@@ -64,31 +64,38 @@ class hardwareInterface():
             GPIO.output(pinCp, GPIO.HIGH)
         self.outvalue |= 1
 #
-###################################################
-#  Following digital outputs
-# to be clarified and removed (CHAdeMO signal)?
+##################################################
+#
+# Following digital outputs are dummies
+# at present, these are the only ones referenced in fsmPev.py, and
+# need to be clarified and updated with CHAdeMO signals
 #
     def setPowerRelayOn(self):
         self.addToTrace("Switching PowerRelay ON.")
 #       if (getConfigValue("digital_output_device")=="rpi_gpio"):
 #           GPIO.output(PinPowerRelay, GPIO.HIGH)
-        self.outvalue |= 2
+        self.outvalue |= 0x10
+
     def setPowerRelayOff(self):
         self.addToTrace("Switching PowerRelay OFF.")
 #       if (getConfigValue("digital_output_device")=="rpi_gpio"):
 #           GPIO.output(PinPowerRelay, GPIO.LOW)
-        self.outvalue &= ~2
+        self.outvalue &= ~0x10
 
     def setRelay2On(self):
         self.addToTrace("Switching Relay2 ON.")
-        self.outvalue |= 0x10
+        self.outvalue |= 0x20
 
     def setRelay2Off(self):
         self.addToTrace("Switching Relay2 OFF.")
-        self.outvalue &= ~0x10
+        self.outvalue &= ~0x20
 
 ##################################################
 
+#
+# These are the CHAdeMO sequence signals, which need to be activated
+# in the fsmPev code at appropriate points (to be determined)
+#
     def setSS1_On(self):
         self.addToTrace("Switching Charge Signal SS1 ON.")
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
@@ -112,6 +119,17 @@ class hardwareInterface():
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS2, GPIO.LOW)
         self.outvalue &= ~8
+
+    def setWdog_On(self):
+        if (getConfigValue("digital_output_device")=="rpi_gpio"):
+            GPIO.output(pinWdg, GPIO.HIGH)
+        self.outvalue |= 0x10
+
+    def setWdog_Off(self):
+        if (getConfigValue("digital_output_device")=="rpi_gpio"):
+            GPIO.output(pinWdg, GPIO.LOW)
+        self.outvalue &= ~0x10
+ 
 #
 # Where is this relay confirmation required in CHAdeMO?  - [fsmPev.py line 603]
 #
@@ -274,10 +292,12 @@ class hardwareInterface():
 
         self.loopcounter = 0
         self.outvalue = 0       # keeps track internally of GPIO digital outputs
-                                # bit 0 = pinCP (setStateB = 0; setStateC = 1
-                                # bit 1 = pinPowerRelay (off = 0; on = 2)
-                                # bit 2 = pinSS1 (CHAdeMO setSS1 signal (off = 0; on = 4)
-                                # bit 3 = pinSS2 (CHAdeMO setSS2 signal (off = 0; on = 8)
+                                # bit 0 = pinCP (setStateB = 0; setStateC = 1)
+                                # bit 1 = pinSS1 (CHAdeMO setSS1 signal [off = 0; on = 2] )
+                                # bit 2 = pinSS2 (CHAdeMO setSS2 signal [off = 0; on = 4] )
+                                # bit 3 = pinWdg (RPi Watchdog - toggles 0x8 on each pass )
+                                # bit 4 = pinPowerRelay (off = 0; on = 0x10)
+                                # bit 5 = pinRelay2 (off = 0; on = 0x20)
         
         self.simulatedSoc = 20.0    # percent
         self.demoAuthenticationCounter = 0

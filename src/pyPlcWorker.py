@@ -79,16 +79,20 @@ class pyPlcWorker():
     def mainfunction(self):
         self.nMainFunctionCalls+=1
         #self.showStatus("pyPlcWorker loop " + str(self.nMainFunctionCalls))
+
+        self.hardwareInterface.setWdog_On()     # Set Watchdog output HIGH at start of main loop
         if (self.mode == C_PEV_MODE):
             self.connMgr.mainfunction()
         self.handleTcpConnectionTrigger()
-        self.hp.mainfunction() # call the lower-level workers
+        self.hp.mainfunction()                  # call the lower-level workers
         self.hardwareInterface.mainfunction()
         if (self.mode == C_EVSE_MODE):
-            if (self.nMainFunctionCalls>8*33): # ugly. Wait with EVSE high level handling, until the modem restarted.
-                self.evse.mainfunction() # call the evse state machine
+            if (self.nMainFunctionCalls>8*33):  # ugly. Wait with EVSE high level handling, until the modem restarted.
+                self.evse.mainfunction()        # call the evse state machine
         if (self.mode == C_PEV_MODE):
-            self.pev.mainfunction() # call the pev state machine
+            self.pev.mainfunction()             # call the pev state machine
+
+        self.hardwareInterface.setWdogOff()     # Set Watchdog output LOW at end of main loop
 
     def handleUserAction(self, strAction):
         self.strUserAction = strAction

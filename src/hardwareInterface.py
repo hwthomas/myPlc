@@ -68,27 +68,27 @@ class hardwareInterface():
 #
 # Following digital outputs are dummies
 # at present, these are the only ones referenced in fsmPev.py, and
-# need to be clarified and updated (CHAdeMO signal equivalents are?)
+# need to be clarified and updated with CHAdeMO signals
 #
     def setPowerRelayOn(self):
         self.addToTrace("Switching PowerRelay ON.")
 #       if (getConfigValue("digital_output_device")=="rpi_gpio"):
 #           GPIO.output(PinPowerRelay, GPIO.HIGH)
-        self.outvalue |= 2
-        
+        self.outvalue |= 0x10
+
     def setPowerRelayOff(self):
         self.addToTrace("Switching PowerRelay OFF.")
 #       if (getConfigValue("digital_output_device")=="rpi_gpio"):
 #           GPIO.output(PinPowerRelay, GPIO.LOW)
-        self.outvalue &= ~2
+        self.outvalue &= ~0x10
 
     def setRelay2On(self):
         self.addToTrace("Switching Relay2 ON.")
-        self.outvalue |= 0x10
+        self.outvalue |= 0x20
 
     def setRelay2Off(self):
         self.addToTrace("Switching Relay2 OFF.")
-        self.outvalue &= ~0x10
+        self.outvalue &= ~0x20
 
 ##################################################
 
@@ -119,8 +119,19 @@ class hardwareInterface():
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS2, GPIO.LOW)
         self.outvalue &= ~8
+
+    def setWdog_On(self):
+        if (getConfigValue("digital_output_device")=="rpi_gpio"):
+            GPIO.output(pinWdg, GPIO.HIGH)
+        self.outvalue |= 0x10
+
+    def setWdog_Off(self):
+        if (getConfigValue("digital_output_device")=="rpi_gpio"):
+            GPIO.output(pinWdg, GPIO.LOW)
+        self.outvalue &= ~0x10
+ 
 #
-# Where is this relay confirmation required in CHAdeMO?
+# Where is this relay confirmation required in CHAdeMO?  - [fsmPev.py line 603]
 #
     def getPowerRelayConfirmation(self):
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
@@ -281,10 +292,13 @@ class hardwareInterface():
 
         self.loopcounter = 0
         self.outvalue = 0       # keeps track internally of GPIO digital outputs
-                                # bit 0 = pinCP (setStateB = 0; setStateC = 1
-                                # bit 1 = pinPowerRelay (off = 0; on = 2)
-                                # bit 2 = pinSS1 (CHAdeMO setSS1 signal (off = 0; on = 4)
-                                # bit 3 = pinSS2 (CHAdeMO setSS2 signal (off = 0; on = 8)
+                                # bit 0 = pinCP (setStateB = 0; setStateC = 1)
+                                # bit 1 = pinSS1 (CHAdeMO setSS1 signal [off = 0; on = 2] )
+                                # bit 2 = pinSS2 (CHAdeMO setSS2 signal [off = 0; on = 4] )
+                                # bit 3 = pinWdg (RPi Watchdog - toggles 0x8 on each pass )
+                                # bit 4 = pinPowerRelay (off = 0; on = 0x10)
+                                # bit 5 = pinRelay2 (off = 0; on = 0x20)
+        
         
         self.simulatedSoc = 20.0    # percent
         self.demoAuthenticationCounter = 0
