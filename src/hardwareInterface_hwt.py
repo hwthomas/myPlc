@@ -129,7 +129,25 @@ class hardwareInterface():
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinWdg, GPIO.LOW)
         self.outvalue &= ~0x10
- 
+#
+#   This is a first attempt at providing a delay during which the Watchdog is continually fired
+#   There is a pre-delay and postdelay, and the time between has the watchdog signal as a square wave
+#
+    def fireWdog(self, preDelay, postDelay, totalDelay): 
+        wDog = (self.value &= 0x10 == 0x10)     # save current watchdog status
+        squareTime = totalDelay - (preDelay + postDelay)
+        time.sleep(preDelay)
+        #nCycles = squareTime/0.002      # 2mS per half-cycle
+        tSq = 0
+        while(tsQ <= squareTime):
+            setWdog_On()
+            time.sleep(0.002)
+            tSq += 0.002
+            setWdog_Off()
+            time.sleep(0.002)
+            tSq += 0.002
+        time.sleep(postDelay)
+
 #
 # Where is this relay confirmation required in CHAdeMO?  - [fsmPev.py line 603]
 #
@@ -298,10 +316,10 @@ class hardwareInterface():
                                 # bit 3 = pinWdg (RPi Watchdog - toggles 0x8 on each pass )
                                 # bit 4 = pinPowerRelay (off = 0; on = 0x10)
                                 # bit 5 = pinRelay2 (off = 0; on = 0x20)
-        
+
         self.simulatedSoc = 20.0    # percent
         self.demoAuthenticationCounter = 0
-        self.enabled = True         #Charging enabled
+        self.enabled = True         # Charging enabled
         self.buttonDebounceCounter = 0
         self.buttonStopPhaseCounter = 0
 

@@ -93,6 +93,7 @@ class pyPlcWorker():
             self.pev.mainfunction()             # call the pev state machine
 
         self.hardwareInterface.setWdog_Off()    # Set Watchdog output LOW at end of main loop
+        self.hardwareInterface.fireWdog(0.004,0.004,0.03)
 
     def handleUserAction(self, strAction):
         self.strUserAction = strAction

@@ -21,6 +21,7 @@ is_simulation_without_modems = false
 
 # The Ethernet interface. Usually eth0 on Raspberry.
 # This setting is considered only on linux. 
+# Check what name is used with:= ip addr
 eth_interface = eth0
 
 # The Ethernet interface name on Windows. Something like
@@ -37,7 +38,7 @@ display_via_serial = yes
 # or kettle or similar.
 # Possible values: yes or no
 # For the use together with a real battery set this to "no".
-light_bulb_demo = no
+light_bulb_demo = yes
 
 # SOC simulation.
 # In PevMode, simulate a rising SOC while charging.
@@ -56,22 +57,23 @@ evse_simulate_precharge = yes
 #  dieter: Serial controlled device, which controls the digital outputs. E.g. arduino from https://github.com/uhi22/dieter
 #  beaglebone: GPIO pins of the beagleBone, as used in https://github.com/jsphuebner/pyPLC/tree/beaglebone
 #  celeron55device: Serial controlled device as used in https://openinverter.org/forum/viewtopic.php?p=56192#p56192
-digital_output_device = dieter
+#  rpi_gpio: RaspberryPi (4b) GPIO outputs
+#digital_output_device = dieter
 #digital_output_device = beaglebone
 #digital_output_device = celeron55device
 #digital_output_device = mqtt
-
+digital_output_device = rpi_gpio
 
 # Device to read the physically measured inlet voltage in PevMode
 # Possible options:
 #  dieter: The high-voltage dieter from https://github.com/uhi22/dieter, which is connected on serial port.
-#  none: if no measurement is intended.
 #  celeron55device: as used in https://openinverter.org/forum/viewtopic.php?p=56192#p56192
+#  none: if no physical measurement is intended.
+#analog_input_device = None
 #analog_input_device = dieter
-analog_input_device = none
 #analog_input_device = celeron55device
 #analog_input_device = mqtt
-
+analog_input_device = None
 
 # Criteria for ending the PreCharge phase in PevMode
 # Possible options:
@@ -105,8 +107,8 @@ mqtt_topic = pyPlc
 # The target voltage used in the CurrentDemandRequest.
 # This is a value for first try-outs. Better would
 # be if the BMS would provide the value. 
-# 11 * 6 * 4.1V = 66 * 4.1V = 270V
-charge_target_voltage = 270
+# 96 * 4.1V =  394V     # for Nissan leaf 62kWh battery (LeafSpy)
+charge_target_voltage = 394
 
 # By using an external manager script, this is useful for splitting charging
 # into separately logged sessions and avoiding logging when not connected to a
@@ -118,7 +120,7 @@ exit_on_session_end = False
 # In EVSE Mode, if the user pressed the space button to stop the session,
 # we either allow a new session after the stopped one, or stay in
 # the stopped-state forever.
-allow_new_session_after_stopping = True
+allow_new_session_after_stopping = False
 
 # If pyPLC does not find a local link address, this means there is no
 # ethernet connection to the homeplug modem. This is a severe hardware
@@ -143,7 +145,7 @@ testsuite_enable = No
 # For development purposes, set this to "Yes".
 # For daily use, set this to "No". There is the risk that the broadcast UDP packets disturb the charger,
 # which may lead to unwanted aborts.
-udp_syslog_enable = Yes
+udp_syslog_enable = No
 
 # Set backend for obtaining charging parameters, we start with CHAdeMO CAN for now
 # Need to make a simulator device and maybe a celeron device?
@@ -155,12 +157,12 @@ udp_syslog_enable = Yes
 #  none: all other use cases
 #charge_parameter_backend = chademo
 #charge_parameter_backend = mqtt
-charge_parameter_backend = none
+charge_parameter_backend = None
 
 # Set the hardware environment where we run in EvseMode
 # Possible values:
 #   focccicape: pyPLC runs on a beaglebone with FoccciCape as described on the openinverter forum https://openinverter.org/forum/viewtopic.php?p=88946#p88946
-evsemode_environment = none
+evsemode_environment = None
 
 # In EvseMode, shall pyPLC control a power supply using a special homeplug message?
 # This is experimental, so normally it shall be False.
@@ -198,7 +200,7 @@ logging_url = http://enteryourhosthere.org/pyPlcLogging/addLog.php
 # Possible values:
 # 0: no additional features. Just listening and showing results in the console.
 # >0: take the network key from the slac_match.cnf, and configure the modem with it, to enter the private network.
-smart_listener_configuration = 1  
+smart_listener_configuration = 0 
 
 # pre_powerdelivery_stop_delay_s.  This seems to be a new parameter.  Put it in with value 1s
 pre_powerdelivery_stop_delay_s = 1
