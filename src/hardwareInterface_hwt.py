@@ -69,6 +69,7 @@ class hardwareInterface():
 # Following digital outputs are dummies
 # at present, these are the only ones referenced in fsmPev.py, and
 # need to be clarified and updated with CHAdeMO signals
+# >> NB getPowerRelayOn is used in hardwareInterface.mainfunction test << #
 #
     def setPowerRelayOn(self):
         self.addToTrace("Switching PowerRelay ON.")
@@ -100,53 +101,51 @@ class hardwareInterface():
         self.addToTrace("Switching Charge Signal SS1 ON.")
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS1, GPIO.HIGH)
-        self.outvalue |= 4
+        self.outvalue |= 2
 
     def setSS1_Off(self):
         self.addToTrace("Switching Charge Signal SS1 OFF.")
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS1, GPIO.LOW)
-        self.outvalue &= ~4
+        self.outvalue &= ~2
  
     def setSS2_On(self):
         self.addToTrace("Switching Charge Signal SS2 ON.")
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS2, GPIO.HIGH)
-        self.outvalue |= 8
+        self.outvalue |= 4
 
     def setSS2_Off(self):
         self.addToTrace("Switching Charge Signal SS2 OFF.")
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinSS2, GPIO.LOW)
-        self.outvalue &= ~8
+        self.outvalue &= ~4
 
     def setWdog_On(self):
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinWdg, GPIO.HIGH)
-        self.outvalue |= 0x10
+        self.outvalue |= 8
 
     def setWdog_Off(self):
         if (getConfigValue("digital_output_device")=="rpi_gpio"):
             GPIO.output(pinWdg, GPIO.LOW)
-        self.outvalue &= ~0x10
+        self.outvalue &= ~8
 #
 #   This is a first attempt at providing a delay during which the Watchdog is continually fired
-#   There is a pre-delay and postdelay, and the time between has the watchdog signal as a square wave
+#   It defines a preDelay and postDelay, with the time in-between as a 2mS/2mS square wave
 #
     def fireWdog(self, preDelay, postDelay, totalDelay): 
-        wDog = (self.value &= 0x10 == 0x10)     # save current watchdog status
         squareTime = totalDelay - (preDelay + postDelay)
-        time.sleep(preDelay)
-        #nCycles = squareTime/0.002      # 2mS per half-cycle
+        sleep(preDelay)
         tSq = 0
-        while(tsQ <= squareTime):
-            setWdog_On()
-            time.sleep(0.002)
-            tSq += 0.002
-            setWdog_Off()
-            time.sleep(0.002)
-            tSq += 0.002
-        time.sleep(postDelay)
+        sq = 0.002      # 2mS On and Off squarewave
+        while(tSq <= squareTime):
+            self.setWdog_On()
+            sleep(sq)
+            self.setWdog_Off()
+            sleep(sq)
+            tSq += 2*sq
+        sleep(postDelay)
 
 #
 # Where is this relay confirmation required in CHAdeMO?  - [fsmPev.py line 603]
@@ -310,12 +309,13 @@ class hardwareInterface():
 
         self.loopcounter = 0
         self.outvalue = 0       # keeps track internally of GPIO digital outputs
-                                # bit 0 = pinCP (setStateB = 0; setStateC = 1)
+                                # bit 0 = pinCP (CCS setState_B = 0; setState_C = 1)
                                 # bit 1 = pinSS1 (CHAdeMO setSS1 signal [off = 0; on = 2] )
                                 # bit 2 = pinSS2 (CHAdeMO setSS2 signal [off = 0; on = 4] )
-                                # bit 3 = pinWdg (RPi Watchdog - toggles 0x8 on each pass )
+                                # bit 3 = pinWdg (RPi Watchdog - set HIGH/LOW on each pass )
+
                                 # bit 4 = pinPowerRelay (off = 0; on = 0x10)
-                                # bit 5 = pinRelay2 (off = 0; on = 0x20)
+                                # bit 5 = pinRelay2     (off = 0; on = 0x20)
 
         self.simulatedSoc = 20.0    # percent
         self.demoAuthenticationCounter = 0
@@ -444,9 +444,9 @@ class hardwareInterface():
     def mainfunction(self):         # hardwareInterface.mainfunction()
         if (getConfigValueBool("soc_simulation")):
             if(self.simulatedSoc<100):
-                if ((self.outvalue & 2)!=0):    # getPowerRelayOn/Off
+                if ((self.outvalue & 0x10)!=0):    # getPowerRelayOn/Off
                     # while the relay is closed, simulate increasing SOC
-                    deltaSoc = 0.5 # how fast the simulated SOC shall rise.
+                    deltaSoc = 0.01 # how fast the simulated SOC shall rise.
                     # Examples:
                     #  0.01 charging needs some minutes, good for light bulb tests
                     #  0.5 charging needs ~8s, good for automatic test case runs.

@@ -79,8 +79,8 @@ class pyPlcWorker():
     def mainfunction(self):
         self.nMainFunctionCalls+=1
         #self.showStatus("pyPlcWorker loop " + str(self.nMainFunctionCalls))
-
         self.hardwareInterface.setWdog_On()     # Set Watchdog output HIGH at start of main loop
+
         if (self.mode == C_PEV_MODE):
             self.connMgr.mainfunction()
         self.handleTcpConnectionTrigger()
@@ -93,7 +93,8 @@ class pyPlcWorker():
             self.pev.mainfunction()             # call the pev state machine
 
         self.hardwareInterface.setWdog_Off()    # Set Watchdog output LOW at end of main loop
-        self.hardwareInterface.fireWdog(0.004,0.004,0.03)
+        # fill remaining time with watchdog square-wave, with 4mS pre, 4mS post, and 20mS total delays
+        self.hardwareInterface.fireWdog(0.004,0.004,0.02)   #
 
     def handleUserAction(self, strAction):
         self.strUserAction = strAction

@@ -30,7 +30,7 @@ worker=pyPlcWorker.pyPlcWorker(cbAddToTrace, cbShowStatus, myMode, isSimulationM
 
 nMainloops=0
 while (1):
-    time.sleep(.03) # 'do some calculation'
+    time.sleep(.01) # 'set minimum scan period (plus watchdog in pyPlcWorker main loop)
     nMainloops+=1
     worker.mainfunction()
 
