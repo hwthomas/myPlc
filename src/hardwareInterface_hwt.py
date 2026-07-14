@@ -46,6 +46,11 @@ class hardwareInterface():
         if (soc>=0) and (soc<=100):
             self.soc_percent = soc
 
+    def publishChargeProgress(self, value):
+        # Publish Start/Stop/Renegotiate explicitly so external orchestrators
+        # can act on the EV's intent without inferring it from fsm_state.
+        pass    # no action for chademo interface
+
     def displayVehicleBatteryCapacity(self, batteryCapacity):
         self.addToTrace("displayVehicleBatteryCapacity " + str(batteryCapacity))
 
