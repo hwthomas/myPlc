@@ -307,8 +307,12 @@ class hardwareInterface():
             else:
                 from powersupplyInterface_other import powersupplyInterface
                 self.isFoccciCape = False
+
             self.psu = powersupplyInterface()
             self.cableChecker = cableChecker(self.psu)
+            # print("PowerSupply Type = ", type(self.psu))    # HWT debug code
+            # print("CableCheckerType = ", type(self.cableChecker))    # ditto
+
             if (getConfigValueBool('evse_pretended_cable_check')):
                 self.cableChecker.setPretendedMode()
 
