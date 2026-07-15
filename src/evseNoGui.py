@@ -6,7 +6,7 @@ import pyPlcWorker
 from configmodule import getConfigValue, getConfigValueBool
 from pyPlcModes import *
 import sys # for argv
-import requests
+import requests         # in case http Requests package is used
 
 startTime_ms = round(time.time()*1000)
 
@@ -63,7 +63,7 @@ worker=pyPlcWorker.pyPlcWorker(cbAddToTrace, cbShowStatus, myMode, 0, socStatusC
 
 nMainloops=0
 while (1):
-    time.sleep(.01) # 'set minimum scan period (plus watchdog in pyPlcWorker main loop)
+    time.sleep(.03) # set basic PLC scan period
     nMainloops+=1
     worker.mainfunction()
 
