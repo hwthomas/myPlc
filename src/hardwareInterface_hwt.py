@@ -292,7 +292,7 @@ class hardwareInterface():
         # so it stays right at the top of __init__.
         self.traceEnabled = getConfigValueBool("evse_printtrace")
 
-
+        # The following conditional code enables (future) hardware charger extensions
         if (self.mode==C_EVSE_MODE):
             if (getConfigValueBool('evse_simulate_precharge')):
                 self.isPhysicalVoltageSimulated = True
