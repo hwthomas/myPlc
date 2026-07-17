@@ -78,8 +78,9 @@ class pyPlcWorker():
 
     def mainfunction(self):
         self.nMainFunctionCalls+=1
-        #self.showStatus("pyPlcWorker loop " + str(self.nMainFunctionCalls))
-        self.hardwareInterface.setWdog_On()     # Set Watchdog output HIGH at start of main loop
+
+        #  Set Watchdog output HIGH at start of main loop
+        self.hardwareInterface.setWdog_On()
 
         if (self.mode == C_PEV_MODE):
             self.connMgr.mainfunction()
@@ -92,9 +93,12 @@ class pyPlcWorker():
         if (self.mode == C_PEV_MODE):
             self.pev.mainfunction()             # call the pev state machine
 
-        self.hardwareInterface.setWdog_Off()    # Set Watchdog output LOW at end of main loop
-        # fill remaining time with watchdog square-wave, with 4mS pre, 4mS post, and 20mS total delays
-        self.hardwareInterface.fireWdog(0.004,0.004,0.02)   #
+        # Set Watchdog output LOW at end of main loop
+        self.hardwareInterface.setWdog_Off()
+
+        # Timing on a Raspberry_Pi (4b) indicates 0.5mS to 1.5mS for this main loop
+        # Sleep for 30mS to set PLC average scan-time. A Watchdog will be fired here sometime
+        sleep(0.03)
 
     def handleUserAction(self, strAction):
         self.strUserAction = strAction
